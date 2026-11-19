@@ -23,12 +23,19 @@ window.BB = {
   googleAdsId: "",      // e.g. "AW-123456789"  (Google Ads > Goals > Conversions > tag setup)
   googleAdsLabel: "",   // e.g. "AbCdEfGhIjK"   (the part after the slash in send_to)
   tiktokPixelId: "",    // e.g. "C123ABC456DEF" (TikTok Ads Manager > Events)
-  links: {
-    spotify: "https://open.spotify.com/track/3hHd4R2R0BI4BMmSMgb3iq",
-    apple:   "",        // Apple Music track URL; button hides while empty
-    amazon:  "",        // Amazon Music URL; button hides while empty
-    youtube: "https://youtu.be/RnY0Hk9wapY"
-  }
+  // Any service left "" is hidden. Order here = order on the page.
+  services: [
+    { id: "spotify",      name: "Spotify",       cta: "Play",  url: "https://open.spotify.com/track/3hHd4R2R0BI4BMmSMgb3iq" },
+    { id: "apple",        name: "Apple Music",   cta: "Play",  url: "" },
+    { id: "amazon",       name: "Amazon Music",  cta: "Play",  url: "" },
+    { id: "youtubemusic", name: "YouTube Music", cta: "Play",  url: "" },
+    { id: "pandora",      name: "Pandora",       cta: "Play",  url: "" },
+    { id: "tidal",        name: "TIDAL",         cta: "Play",  url: "https://listen.tidal.com/track/574402958" },
+    { id: "deezer",       name: "Deezer",        cta: "Play",  url: "" },
+    { id: "iheart",       name: "iHeartRadio",   cta: "Play",  url: "" },
+    { id: "youtube",      name: "Official Video", cta: "Watch", url: "https://youtu.be/RnY0Hk9wapY" },
+    { id: "more",         name: "More services", cta: "Go",    url: "" }  // DistroKid HyperFollow link as catch-all
+  ]
 };
 /* ===== END EDIT BLOCK ===== */
 
@@ -92,27 +99,27 @@ window.BB = {
     position: relative; z-index: 2; width: 100%; max-width: 400px; text-align: center;
   }
   .cover {
-    width: 100%; aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden;
+    width: 60%; max-width: 240px; margin: 0 auto; aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden;
     box-shadow: 0 24px 60px rgba(0,0,0,0.6); border: 1px solid var(--gold-dim);
     background: var(--ink) url("/swr-hero.jpg") center / cover no-repeat;
   }
   .eyebrow {
     font-family: "Archivo", system-ui, sans-serif; font-weight: 600;
     font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold-light); margin-top: 26px;
+    color: var(--gold-light); margin-top: 20px;
   }
   h1 {
     font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
-    font-size: 44px; line-height: 1.05; margin-top: 8px; color: var(--cream);
+    font-size: 40px; line-height: 1.05; margin-top: 6px; color: var(--cream);
   }
   .artist {
     font-family: "Cormorant Garamond", Georgia, serif; font-style: italic;
     font-size: 21px; color: var(--gold-light); margin-top: 4px;
   }
-  .services { list-style: none; margin-top: 26px; display: grid; gap: 10px; }
+  .services { list-style: none; margin-top: 22px; display: grid; gap: 8px; }
   .svc {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 15px 18px; border-radius: 4px; text-decoration: none;
+    padding: 13px 18px; border-radius: 4px; text-decoration: none;
     background: rgba(32,20,14,0.85); border: 1px solid var(--gold-dim); color: var(--cream);
     font-family: "Archivo", system-ui, sans-serif; font-weight: 500; font-size: 15px;
     transition: border-color .15s, background .15s;
@@ -146,12 +153,7 @@ window.BB = {
     <h1 id="song">Still We Rise</h1>
     <p class="artist">Bridge and Bone</p>
 
-    <ul class="services">
-      <li><a class="svc primary" data-svc="spotify" href="#">Spotify <span class="cta">Play</span></a></li>
-      <li><a class="svc" data-svc="apple" href="#">Apple Music <span class="cta">Play</span></a></li>
-      <li><a class="svc" data-svc="amazon" href="#">Amazon Music <span class="cta">Play</span></a></li>
-      <li><a class="svc" data-svc="youtube" href="#">YouTube <span class="cta">Watch</span></a></li>
-    </ul>
+    <ul class="services" id="services"></ul>
 
     <footer>
       Rhythms for the bones, lyrics for the soul.<br>
@@ -164,13 +166,22 @@ window.BB = {
   var c = window.BB;
   document.getElementById("song").textContent = c.song;
 
-  document.querySelectorAll(".svc").forEach(function (a) {
-    var svc = a.getAttribute("data-svc");
-    var url = c.links[svc];
-    if (!url) { a.parentNode.style.display = "none"; return; }
-    a.href = url;
-    a.target = "_self";
+  var list = document.getElementById("services");
+  c.services.filter(function (s) { return s.url; }).forEach(function (s, i) {
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.className = "svc" + (i === 0 ? " primary" : "");
+    a.href = s.url;
     a.rel = "noopener";
+    a.textContent = s.name + " ";
+    var cta = document.createElement("span");
+    cta.className = "cta";
+    cta.textContent = s.cta;
+    a.appendChild(cta);
+    li.appendChild(a);
+    list.appendChild(li);
+
+    var svc = s.id, url = s.url;
 
     a.addEventListener("click", function (e) {
       // Let cmd/ctrl/middle clicks open normally
